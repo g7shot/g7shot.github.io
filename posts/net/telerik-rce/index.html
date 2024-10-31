@@ -79,7 +79,7 @@ tw-scrollbar-thin"><span class=line><span class=cl><span class=n>StringReader</s
 </span></span><span class=line><span class=cl>    
 </span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div><p>正常来说这里类型不可控，无法直接触发RCE。
 参考之前solarwinds的<a href=https://paper.seebug.org/3065 target=_blank rel="noopener noreferrer">分析</a>，即使反序列化类型不可控，可以尝试看看该类是否实现了IXmlSerializable接口</p><p>来看看这个类的实现：
-<img class=tw-inline loading=lazy src=./../vx_images/139673417237561.png></p><p>这里版本很老了是4.2.10.1221，可以看到这个类实现了IXmlSerializable接口并且存在readxml方法：</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=./../vx_images/139673417237561.png></p><p>这里版本很老了是4.2.10.1221，可以看到这个类实现了IXmlSerializable接口并且存在readxml方法：</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -201,7 +201,7 @@ tw-scrollbar-thin"><span class=line><span class=cl><span class=n>PropertyInfo</s
 </span></span><span class=line><span class=cl>                  <span class=p>{</span>
 </span></span><span class=line><span class=cl>                    <span class=n>Type</span> <span class=n>type2</span> <span class=p>=</span> <span class=n>Type</span><span class=p>.</span><span class=n>GetType</span><span class=p>(</span><span class=n>attribute</span><span class=p>);</span>
 </span></span><span class=line><span class=cl>                    <span class=p>........</span></span></span></code></pre></div><p>这里的type1就是我们反序列化出的类型为<code>Telerik.Reporting.Report</code>，这里想要走到<code>Type type2 = Type.GetType(attribute);</code>，必须经过上面的if逻辑，也就是两个条件之一：</p><ol><li>Report存在一个属性值为object类型</li><li>Report存在一个属性值可写即setter并且在已知类型里</li></ol><p>看了下Report类，刚好存在满足条件1的属性
-<img class=tw-inline loading=lazy src=../vx_images/388700318246951.png></p><p>获取到type2之后的处理就是重新使用 XmlSerializer 再反序列化一次，那么只要构造DataSource部分最终就能反序列化出任意类型。</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=../vx_images/388700318246951.png></p><p>获取到type2之后的处理就是重新使用 XmlSerializer 再反序列化一次，那么只要构造DataSource部分最终就能反序列化出任意类型。</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -274,7 +274,7 @@ tw-scrollbar-thin"><span class=line><span class=cl><span class=p>&lt;</span><spa
 </span></span><span class=line><span class=cl>      <span class=p>&lt;/</span><span class=n>ProjectedProperty0</span><span class=p>&gt;</span>
 </span></span><span class=line><span class=cl>    <span class=p>&lt;/</span><span class=n>ExpandedWrapperOfXamlReaderObjectDataProvider</span><span class=p>&gt;</span>
 </span></span><span class=line><span class=cl>  <span class=p>&lt;/</span><span class=n>DataSource</span><span class=p>&gt;</span></span></span></code></pre></div><p>最终走到ReadValue方法初始化XmlSerializer反序列化RCE。
-<img class=tw-inline loading=lazy src=../vx_images/353681018242705.png></p><p>最终payload</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=../vx_images/353681018242705.png></p><p>最终payload</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -455,7 +455,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>  <span class=p>&lt;</span><s
 </span></span><span class=line><span class=cl>      <span class=p>&lt;/</span><span class=n>Source</span><span class=p>&gt;</span>
 </span></span><span class=line><span class=cl>    <span class=p>&lt;/</span><span class=n>WebServiceDataSource</span><span class=p>&gt;</span>
 </span></span><span class=line><span class=cl>  <span class=p>&lt;/</span><span class=n>DataSources</span><span class=p>&gt;</span></span></span></code></pre></div><p>还是报错
-<img class=tw-inline loading=lazy src=../vx_images/169300716236933.png></p><p>报错无法解析其类型，根据报错堆栈进ReadXmlElement方法看看，实现如下</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=../vx_images/169300716236933.png></p><p>报错无法解析其类型，根据报错堆栈进ReadXmlElement方法看看，实现如下</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -579,7 +579,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>	<span class=n>ObjectDataProv
 </span></span><span class=line><span class=cl>	<span class=n>dataSource</span><span class=p>.</span><span class=n>Source</span> <span class=p>=</span> <span class=n>objectDataProvider</span><span class=p>;</span>
 </span></span><span class=line><span class=cl>	<span class=n>dataSource</span><span class=p>.</span><span class=n>ServiceUrl</span> <span class=p>=</span> <span class=s>&#34;test.com&#34;</span><span class=p>;</span>
 </span></span><span class=line><span class=cl>	<span class=n>dataSource</span><span class=p>.</span><span class=n>DataEncoding</span> <span class=p>=</span> <span class=n>Encoding</span><span class=p>.</span><span class=n>Unicode</span><span class=p>;</span>
-</span></span><span class=line><span class=cl>	<span class=n>report</span><span class=p>.</span><span class=n>DataSource</span> <span class=p>=</span> <span class=n>dataSource</span><span class=p>;</span></span></span></code></pre></div><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+</span></span><span class=line><span class=cl>	<span class=n>report</span><span class=p>.</span><span class=n>DataSource</span> <span class=p>=</span> <span class=n>dataSource</span><span class=p>;</span></span></span></code></pre></div><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between

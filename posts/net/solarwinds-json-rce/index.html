@@ -247,7 +247,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>public IMessage DeserializeMe
 </span></span><span class=line><span class=cl>	return MessageFactory.CreateInstance(messageType, body2, properties);
 </span></span><span class=line><span class=cl>} </span></span></code></pre></div><p>这里会提取properties中的Type，当作反序列化后的类型，可控。
 继续跟进，很明显的反序列化</p><p><img class=tw-inline loading=lazy src=../vx_images/532252811246742.png></p><h3 id=漏洞复现 class=headerLink><a href=#%e6%bc%8f%e6%b4%9e%e5%a4%8d%e7%8e%b0 class=header-mark></a>漏洞复现</h3><p>放个三月份的截图
-<img class=tw-inline loading=lazy src=../vx_images/319370912260376.png></p><h3 id=漏洞修复 class=headerLink><a href=#%e6%bc%8f%e6%b4%9e%e4%bf%ae%e5%a4%8d class=header-mark></a>漏洞修复</h3><p>注册ContracResolver使用黑名单列表拦截。</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=../vx_images/319370912260376.png></p><h3 id=漏洞修复 class=headerLink><a href=#%e6%bc%8f%e6%b4%9e%e4%bf%ae%e5%a4%8d class=header-mark></a>漏洞修复</h3><p>注册ContracResolver使用黑名单列表拦截。</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -324,7 +324,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>&#34;System.Diagnostics.Proce
 </span></span><span class=line><span class=cl>&#34;System.Web.UI.MobileControls.SessionViewState+SessionViewStateHistoryItem&#34;,
 </span></span><span class=line><span class=cl>&#34;Microsoft.IdentityModel.Claims.WindowsClaimsIdentity&#34;,
 </span></span><span class=line><span class=cl>&#34;System.Security.Principal.WindowsPrincipal&#34;</span></span></code></pre></div><h2 id=cve-2022-38111 class=headerLink><a href=#cve-2022-38111 class=header-mark></a>CVE-2022-38111</h2><p>影响版本 SolarWinds Platform 2022.4.1，至此以后的版本都添加了白名单。</p><p>最近<a href=https://twitter.com/chudyPB target=_blank rel="noopener noreferrer">chudyPB</a>更新了ysoserial，包括适用于Json.net的新链。</p><p><strong>JSON.NET 特性</strong></p><ul><li>构造函数选择机制</li></ul><ol><li>查找[JsonConstructorAttribute]特性的constrcutor</li><li>查找不接受参数的公共构造函数</li><li>查找是否具有带参数的单个构造函数</li><li>最后检查对于非公共默认构造函数（ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor）</li></ol><ul><li>序列化机制</li></ul><ol><li>Json.NET可以调用类的无参公共构造函数并调用其公共setter</li><li>可序列化的构造函数(带有 SerializationInfo 和StreamingContext 参数)和<a href=https://www.newtonsoft.com/json/help/html/SerializationCallbacks.htm target=_blank rel="noopener noreferrer">SerializationCallbacks</a></li></ol><p>BinaryFormatter_TextFormattingRunProperties链子原理见<a href=https://github.com/Y4er/dotnet-deserialization/blob/main/BinaryFormatter.md target=_blank rel="noopener noreferrer">BinaryFormatter.md</a></p><p>调用链：TextFormattingRunProperties构造函数->GetObjectFromSerializationInfo()&ndash;>XamlReader.Parse(@string)，BinaryFormatter的exp是通过重写构造函数将ForegroundBrush的值插入SerializationInfo中，最后触发RCE。</p><p>Newtonsoft？？？</p><p>跟踪其反序列化的过程，在JsonSerializerInternalReader#CreateISerializable中也会将值插入到SerializationInfo中，最后触发RCE，代码如下：
-<img class=tw-inline loading=lazy src=../vx_images/519310916257980.png></p><p>适用于Json.net的TextFormattingRunProperties链</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=../vx_images/519310916257980.png></p><p>适用于Json.net的TextFormattingRunProperties链</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -386,7 +386,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>{&#34;$type&#34;:&#34;Microso
 </span></span><span class=line><span class=cl>        &lt;/ObjectDataProvider.MethodParameters&gt;
 </span></span><span class=line><span class=cl>    &lt;/ObjectDataProvider&gt;
 </span></span><span class=line><span class=cl>&lt;/ResourceDictionary&gt;&#34;}</span></span></code></pre></div><p>从而绕过黑名单。</p><h2 id=cve-2022-36957 class=headerLink><a href=#cve-2022-36957 class=header-mark></a>CVE-2022-36957</h2><p>和CVE-2022-38108入口点一样，对比diff在PropertyBagJsonConverter新增新增黑名单
-<img class=tw-inline loading=lazy src=../vx_images/592973811242496.png></p><p>看看具体是如何实现的</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=../vx_images/592973811242496.png></p><p>看看具体是如何实现的</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -465,7 +465,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>//SolarWinds.MessageBus.Model
 </span></span><span class=line><span class=cl>		return propertyBag;
 </span></span><span class=line><span class=cl>	}
 </span></span><span class=line><span class=cl>	throw new InvalidOperationException(string.Format(&#34;Unexpected json token type {0}&#34;, reader.TokenType));
-</span></span><span class=line><span class=cl>}</span></span></code></pre></div><p>t和v均可控，现在就要考虑如何调用到这。该类继承了JsonConverter实现了自定义的反序列化器，具体用法参考<a href=https://www.newtonsoft.com/json/help/html/CustomJsonConverter.htm target=_blank rel="noopener noreferrer">CustomJsonConverter.htm</a></p><p>存在以下两种情况：</p><ol><li>JsonSerializerSettings中注册了PropertyBagJsonConverter（没找到）</li><li>找到使用了PropertyBagJsonConverter特性的类反序列化的点即类标记[JsonConverter(typeof(PropertyBagJsonConverter))]</li></ol><p>第二种情况找到了SolarWinds.MessageBus.Models.PropertyBag类，只需要向rabbitmq发送type为<code>SolarWinds.MessageBus.Models.PropertyBag, SolarWinds.MessageBus</code>的json数据，最终就能调用到SolarWinds.MessageBus.Models.PropertyBagJsonConverter#Readjson触发发序列化，payload</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+</span></span><span class=line><span class=cl>}</span></span></code></pre></div><p>t和v均可控，现在就要考虑如何调用到这。该类继承了JsonConverter实现了自定义的反序列化器，具体用法参考<a href=https://www.newtonsoft.com/json/help/html/CustomJsonConverter.htm target=_blank rel="noopener noreferrer">CustomJsonConverter.htm</a></p><p>存在以下两种情况：</p><ol><li>JsonSerializerSettings中注册了PropertyBagJsonConverter（没找到）</li><li>找到使用了PropertyBagJsonConverter特性的类反序列化的点即类标记[JsonConverter(typeof(PropertyBagJsonConverter))]</li></ol><p>第二种情况找到了SolarWinds.MessageBus.Models.PropertyBag类，只需要向rabbitmq发送type为<code>SolarWinds.MessageBus.Models.PropertyBag, SolarWinds.MessageBus</code>的json数据，最终就能调用到SolarWinds.MessageBus.Models.PropertyBagJsonConverter#Readjson触发发序列化，payload</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -727,7 +727,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>	public WorkerControllerWCFPr
 </span></span><span class=line><span class=cl>		this.uri = this.LaunchWorkerProcess();
 </span></span><span class=line><span class=cl>		this.Connect();
 </span></span><span class=line><span class=cl>	}</span></span></code></pre></div><p>所以重点关注WorkerConfiguration类中的几个参数是否可控
-<img class=tw-inline loading=lazy src=../vx_images/176125316255482.png></p><p>显而易见public and setter，poc</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=../vx_images/176125316255482.png></p><p>显而易见public and setter，poc</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -788,7 +788,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>{
 </span></span><span class=line><span class=cl>    },
 </span></span><span class=line><span class=cl>    &#34;operationMode&#34;: 0,
 </span></span><span class=line><span class=cl>    &#34;workerProcessLabel&#34;: &#34;whatever&#34;
-</span></span><span class=line><span class=cl>   }</span></span></code></pre></div><h2 id=cve-2022-47507 class=headerLink><a href=#cve-2022-47507 class=header-mark></a>CVE-2022-47507</h2><p>关键类是WorkerProcessWCFProxy，实现如下</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+</span></span><span class=line><span class=cl>   }</span></span></code></pre></div><h2 id=cve-2022-47507 class=headerLink><a href=#cve-2022-47507 class=header-mark></a>CVE-2022-47507</h2><p>关键类是WorkerProcessWCFProxy，实现如下</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -864,7 +864,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>    //SolarWinds.JobEngine.En
 </span></span><span class=line><span class=cl>		private void CreateWorkerController()
 </span></span><span class=line><span class=cl>		{
 </span></span><span class=line><span class=cl>			this.workerController = new WorkerControllerWCFProxy(this.workerConfiguration, this.operationMode, this.assemblyName);
-</span></span><span class=line><span class=cl>		}</span></span></code></pre></div><p>CreateWorkerController方法调用了WorkerControllerWCFProxy，补全构造函数就行。</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+</span></span><span class=line><span class=cl>		}</span></span></code></pre></div><p>CreateWorkerController方法调用了WorkerControllerWCFProxy，补全构造函数就行。</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -1052,7 +1052,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>[Serializable]
 </span></span><span class=line><span class=cl>			}
 </span></span><span class=line><span class=cl>		}
 </span></span><span class=line><span class=cl>	}
-</span></span><span class=line><span class=cl>}</span></span></code></pre></div><p>利用log4net日志功能写入文件，原配置文件在<code>C:\Program Files\SolarWinds\Orion\SolarWinds.Cortex.log4net.config</code>，这里是log4net的<a href=https://gist.github.com/PatrickMcDonald/3182660 target=_blank rel="noopener noreferrer">示例</a></p><p>这里利用需要修改两处配置：</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+</span></span><span class=line><span class=cl>}</span></span></code></pre></div><p>利用log4net日志功能写入文件，原配置文件在<code>C:\Program Files\SolarWinds\Orion\SolarWinds.Cortex.log4net.config</code>，这里是log4net的<a href=https://gist.github.com/PatrickMcDonald/3182660 target=_blank rel="noopener noreferrer">示例</a></p><p>这里利用需要修改两处配置：</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -1118,7 +1118,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>// 修改RollingLogFileAppend
 </span></span><span class=line><span class=cl>// 新增logger
 </span></span><span class=line><span class=cl> &lt;logger name=&#34;SolarWinds.IPAM.Storage.Credentials.CredentialInitializer&#34;&gt;
 </span></span><span class=line><span class=cl> &lt;level value=&#34;DEBUG&#34;&gt;&lt;/level&gt;
-</span></span><span class=line><span class=cl> &lt;/logger&gt;</span></span></code></pre></div><p>poc</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+</span></span><span class=line><span class=cl> &lt;/logger&gt;</span></span></code></pre></div><p>poc</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -1179,7 +1179,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>//写文件
 </span></span><span class=line><span class=cl>&#34;$type&#34;:&#34;SolarWinds.IPAM.Storage.Credentials.CredentialInitializer, SolarWinds.IPAM.Storage, Version=2022.4.0.0, Culture=neutral,PublicKeyToken=null&#34;,
 </span></span><span class=line><span class=cl>&#34;logConfigFile&#34;:&#34;C:\\Program Files\\SolarWinds\\Orion\\SolarWinds.Cortex.log4net.config&#34;
 </span></span><span class=line><span class=cl>}</span></span></code></pre></div><p>发送payload最终生成文件。
-<img class=tw-inline loading=lazy src=../vx_images/224301614236728.png></p><h2 id=cve-2022-36957文件读-rce class=headerLink><a href=#cve-2022-36957%e6%96%87%e4%bb%b6%e8%af%bb-rce class=header-mark></a>CVE-2022-36957（文件读->RCE）</h2><p>利用类在SqlFileScript</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=../vx_images/224301614236728.png></p><h2 id=cve-2022-36957文件读-rce class=headerLink><a href=#cve-2022-36957%e6%96%87%e4%bb%b6%e8%af%bb-rce class=header-mark></a>CVE-2022-36957（文件读->RCE）</h2><p>利用类在SqlFileScript</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
