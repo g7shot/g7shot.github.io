@@ -24,7 +24,7 @@
 SolarWinds Platform 2022.3 and earlier
 Orion Platform 2020.2.6 HF5 and earlier</p><p>DeserializeFromStrippedXml方法存在以下四个dll</p><ul><li>solarwinds.informationservice.Contract.dll</li><li>solarwinds.MessageBus.dll</li><li>solarwinds.informationservice.Addons.dll</li><li>solarwinds.Orion.Core.SharedCredentials.Provider.dll</li></ul><p>来看看diff，明显的xml反序列化。
 <img class=tw-inline loading=lazy src=../vx_images/3141411259626.png></p><h2 id=swis服务 class=headerLink><a href=#swis%e6%9c%8d%e5%8a%a1 class=header-mark></a>SWIS服务</h2><p>Solarwinds软件中有一个SolarWinds Information Service (SWIS)服务，可通过该服务访问到Orion平台中的数据，提供了一种类似于SQL的语言SWQL。
-<img class=tw-inline loading=lazy src=../vx_images/375591013262245.png></p><p>默认监听端口端口17778、17777，官方提供了SWQL Studio工具可进行SWQL查询以及API调用，HTTP也能进行部分调用但是只能调用一部分。</p><p>如果熟悉WCF，很容易找到对应的接口在/SolarWinds/InformationService/v3/json/，在配置文件：</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=../vx_images/375591013262245.png></p><p>默认监听端口端口17778、17777，官方提供了SWQL Studio工具可进行SWQL查询以及API调用，HTTP也能进行部分调用但是只能调用一部分。</p><p>如果熟悉WCF，很容易找到对应的接口在/SolarWinds/InformationService/v3/json/，在配置文件：</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -74,11 +74,11 @@ group-[.is-closed]:!tw-max-h-0
 group-[.is-wrap]:tw-text-wrap
 tw-overflow-y-hidden
 tw-overflow-x-auto
-tw-scrollbar-thin"><pre tabindex=0><code>&lt;endpoint address=&#34;/Json&#34; binding=&#34;webHttpBinding&#34; bindingConfiguration=&#34;RestBinding&#34; contract=&#34;SolarWinds.InformationService.Core.IRestInformationService&#34; behaviorConfiguration=&#34;RestEndpointBehavior&#34;&gt;
-    &lt;identity&gt;
-    &lt;certificateReference x509FindType=&#34;FindBySubjectDistinguishedName&#34; storeName=&#34;My&#34; storeLocation=&#34;LocalMachine&#34; findValue=&#34;CN=SolarWinds-Orion&#34; /&gt;
-    &lt;/identity&gt;
-&lt;/endpoint&gt;</code></pre></code></pre></div><p>对应类：</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+tw-scrollbar-thin"><span class=line><span class=cl>&lt;endpoint address=&#34;/Json&#34; binding=&#34;webHttpBinding&#34; bindingConfiguration=&#34;RestBinding&#34; contract=&#34;SolarWinds.InformationService.Core.IRestInformationService&#34; behaviorConfiguration=&#34;RestEndpointBehavior&#34;&gt;
+</span></span><span class=line><span class=cl>    &lt;identity&gt;
+</span></span><span class=line><span class=cl>    &lt;certificateReference x509FindType=&#34;FindBySubjectDistinguishedName&#34; storeName=&#34;My&#34; storeLocation=&#34;LocalMachine&#34; findValue=&#34;CN=SolarWinds-Orion&#34; /&gt;
+</span></span><span class=line><span class=cl>    &lt;/identity&gt;
+</span></span><span class=line><span class=cl>&lt;/endpoint&gt;</span></span></code></pre></div><p>对应类：</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -128,7 +128,7 @@ group-[.is-closed]:!tw-max-h-0
 group-[.is-wrap]:tw-text-wrap
 tw-overflow-y-hidden
 tw-overflow-x-auto
-tw-scrollbar-thin"><pre tabindex=0><code>SolarWinds.InformationService.Core#IRestInformationService</code></pre></code></pre></div><p>不过SWQL Studio更加方便，只需要找到对应的verb填入参数即能调用
+tw-scrollbar-thin"><span class=line><span class=cl>SolarWinds.InformationService.Core#IRestInformationService</span></span></code></pre></div><p>不过SWQL Studio更加方便，只需要找到对应的verb填入参数即能调用
 <img class=tw-inline loading=lazy src=../vx_images/182692914261256.png></p><h2 id=cve-2022-36958 class=headerLink><a href=#cve-2022-36958 class=header-mark></a>CVE-2022-36958</h2><p>这个CVE影响的是solarwinds.informationservice.Addons.dll，和上面提到的另外两个dll文件都实现了自定义反序列化的逻辑，实现都大同小异。</p><p>入口是将所有参数进行反序列化（DataContractSerializer），类型对应调用Verb函数的接收参数，如上。但是可以找到一个类实现了<a href=https://learn.microsoft.com/en-us/dotnet/api/system.xml.serialization.ixmlserializable target=_blank rel="noopener noreferrer">IXmlSerializable</a>接口的方法，DataContractSerializer反序列化该类时会调用其readxml方法进行下一步操作，就像Json.NET自定义JsonConverter#ReadJson方法一样。</p><p>SolarWinds.InformationService.Addons.PropertyBag类继承了IXmlSerializable接口并实现了Readxml方法，当反序列化为PropertyBag类型时会调用ReadXml走自定义反序列化的逻辑，定位到<code>SolarWinds.InformationService.Addons.PropertyBag#ReadXMl</code>方法</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
@@ -209,7 +209,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>	public void ReadXml<span cla
 </span></span><span class=line><span class=cl>				<span class=o>}</span>
 </span></span><span class=line><span class=cl>			<span class=o>}</span>
 </span></span><span class=line><span class=cl>		<span class=o>}</span>
-</span></span><span class=line><span class=cl>	<span class=o>}</span></span></span></code></pre></div><p>将从xml中取出type和value进行反序列化，均可控。跟进</p><p><img class=tw-inline loading=lazy src=../vx_images/315161815248596.png></p><p>中间有一部分逻辑省略了，最终确实拿到了我们期望的类型，然后调用DeserializeFromStrippedXml进行反序列化，但是在反序列化之前还会处理一次我们的xml</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+</span></span><span class=line><span class=cl>	<span class=o>}</span></span></span></code></pre></div><p>将从xml中取出type和value进行反序列化，均可控。跟进</p><p><img class=tw-inline loading=lazy src=../vx_images/315161815248596.png></p><p>中间有一部分逻辑省略了，最终确实拿到了我们期望的类型，然后调用DeserializeFromStrippedXml进行反序列化，但是在反序列化之前还会处理一次我们的xml</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -268,7 +268,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>		public object DeserializeFr
 </span></span><span class=line><span class=cl>			string <span class=nv>s</span> <span class=o>=</span> string.Format<span class=o>(</span><span class=s2>&#34;&lt;{0} xmlns=&#39;{1}&#39;&gt;{2}&lt;/{0}&gt;&#34;</span>, this.XsdElementName, this.Namespace, strippedXml<span class=o>)</span><span class=p>;</span>
 </span></span><span class=line><span class=cl>			<span class=k>return</span> this.Serializer.Deserialize<span class=o>(</span>new StringReader<span class=o>(</span>s<span class=o>))</span><span class=p>;</span>
 </span></span><span class=line><span class=cl>		<span class=o>}</span></span></span></code></pre></div><p>会在我们的payload最外层嵌套一层标签，这里XsdElementName是通过type正常生成的为ExpandedWrapperOfXamlReaderObjectDataProvider，但是namespace是获取为空的。
-<img class=tw-inline loading=lazy src=../vx_images/580322518259169.png></p><p>命名空间的问题会导致正常payload无法正常执行，经过测试顶级命名空间不可控的情况下，移至子标签payload可正常执行，后来作者也提到了<a href=https://www.zerodayinitiative.com/blog/2023/9/21/finding-deserialization-bugs-in-the-solarwind-platform target=_blank rel="noopener noreferrer">finding-deserialization-bugs-in-the-solarwind-platform</a></p><p>所以针对SolarWinds.InformationService.Addons.PropertyBag的payload</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=../vx_images/580322518259169.png></p><p>命名空间的问题会导致正常payload无法正常执行，经过测试顶级命名空间不可控的情况下，移至子标签payload可正常执行，后来作者也提到了<a href=https://www.zerodayinitiative.com/blog/2023/9/21/finding-deserialization-bugs-in-the-solarwind-platform target=_blank rel="noopener noreferrer">finding-deserialization-bugs-in-the-solarwind-platform</a></p><p>所以针对SolarWinds.InformationService.Addons.PropertyBag的payload</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -509,7 +509,7 @@ tw-scrollbar-thin"><span class=line><span class=cl><span class=nt>&lt;AlertingAc
 </span></span><span class=line><span class=cl>            <span class=nt>&lt;ObjectDataExists&gt;</span>false<span class=nt>&lt;/ObjectDataExists&gt;</span>
 </span></span><span class=line><span class=cl>        <span class=nt>&lt;/AlertingActionContext&gt;</span></span></span></code></pre></div><h2 id=漏洞复现 class=headerLink><a href=#%e6%bc%8f%e6%b4%9e%e5%a4%8d%e7%8e%b0 class=header-mark></a>漏洞复现</h2><p>找到入口点传入的类型为SolarWinds.InformationService.Addons.PropertyBag，复制上面的payload发送，比如Orion.AlertActionExecuted.ReportIndication的verb
 <img class=tw-inline loading=lazy src=../vx_images/534560815249480.png>
-<img class=tw-inline loading=lazy src=../vx_images/24660615231054.png></p><h2 id=拓展 class=headerLink><a href=#%e6%8b%93%e5%b1%95 class=header-mark></a>拓展</h2><p>Solarwinds之前的CVE-2022-36957( PropertyBagJsonConverter )和上面的两个Xml反序列化，都是通过找到特定类自定义的反序列化进行下一步的利用。</p><p>对比下DataContractSerializer正常反序列化逻辑和走自定义反序列化逻辑的调用栈：</p><div class=table-wrapper><table><thead><tr><th style=text-align:><img class=tw-inline loading=lazy src=../vx_images/310104411240986.png></th><th style=text-align:><img class=tw-inline loading=lazy src=../vx_images/510884611231516.png></th></tr></thead><tbody></tbody></table></div><p>最终都会进入到XmlObjectSerializerReadContext#ReadDataContractValue方法，然后再调用ReadXmlValue走内部反序列化的逻辑，具体代码</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+<img class=tw-inline loading=lazy src=../vx_images/24660615231054.png></p><h2 id=拓展 class=headerLink><a href=#%e6%8b%93%e5%b1%95 class=header-mark></a>拓展</h2><p>Solarwinds之前的CVE-2022-36957( PropertyBagJsonConverter )和上面的两个Xml反序列化，都是通过找到特定类自定义的反序列化进行下一步的利用。</p><p>对比下DataContractSerializer正常反序列化逻辑和走自定义反序列化逻辑的调用栈：</p><div class=table-wrapper><table><thead><tr><th style=text-align:><img class=tw-inline loading=lazy src=../vx_images/310104411240986.png></th><th style=text-align:><img class=tw-inline loading=lazy src=../vx_images/510884611231516.png></th></tr></thead><tbody></tbody></table></div><p>最终都会进入到XmlObjectSerializerReadContext#ReadDataContractValue方法，然后再调用ReadXmlValue走内部反序列化的逻辑，具体代码</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -629,7 +629,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>private DataContract RootCont
 <img class=tw-inline loading=lazy src=../vx_images/490832614234020.png></p><p>最终会拿到对应的DataContract实例：
 <img class=tw-inline loading=lazy src=../vx_images/94981015242967.png></p><p>由于本地调试环境问题没有详细跟进，不过可以清楚看见第二个红框标记的一个if条件是<code>type.IsDefined(Globals.TypeOfDataContractAttribute, false)</code>。</p><p>参考<a href=https://learn.microsoft.com/en-us/dotnet/framework/wcf/feature-details/how-to-serialize-and-deserialize-json-data target=_blank rel="noopener noreferrer">官方文档</a>，在使用DataContractSerializer反序列化类时，类需要标记DataContract特性，所以在正常使用过程中都会使用ClassDataContract#ReadXmlValue，然后再走内部反序列化的逻辑，这里不再赘述。</p><p>简单看下XmlDataContract#ReadXmlValue最终是怎么调用到反序列化类的ReadXml方法中的：</p><p><img class=tw-inline loading=lazy src=../vx_images/36673215235852.png></p><p>进入ReadXmlValue方法中之后会调用XmlObjectSerializerReadContext.ReadIXmlSerializable()，跟进
 <img class=tw-inline loading=lazy src=../vx_images/420203415236461.png></p><p>到这里最终调用了ReadXml方法走自定义反序列化的逻辑。
-那其他Xml序列化器是否也有类似的处理逻辑？我们知道常见的xml序列化器有</p><ul><li>DataContractSerializer，继承XmlObjectSerializer</li><li>NetDataContractSerializer，继承XmlObjectSerializer</li><li>XmlSerializer</li></ul><p>调试发现NetDataContractSerializer同样也支持这种方式，如果CVE-2022-36958的序列化器是NetDataContractSerializer，如下payload也同样适用：</p><div class="code-block highlight is-closed show-line-numbers tw-group tw-my-2"><div class="code-block-title
+那其他Xml序列化器是否也有类似的处理逻辑？我们知道常见的xml序列化器有</p><ul><li>DataContractSerializer，继承XmlObjectSerializer</li><li>NetDataContractSerializer，继承XmlObjectSerializer</li><li>XmlSerializer</li></ul><p>调试发现NetDataContractSerializer同样也支持这种方式，如果CVE-2022-36958的序列化器是NetDataContractSerializer，如下payload也同样适用：</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
