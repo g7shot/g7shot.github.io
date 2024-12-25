@@ -398,7 +398,7 @@ tw-scrollbar-thin"><span class=line><span class=cl>	<span class=kd>private</span
 </span></span><span class=line><span class=cl>			<span class=k>this</span><span class=p>.</span><span class=n>StartListening</span><span class=p>(</span><span class=kc>null</span><span class=p>);</span>
 </span></span><span class=line><span class=cl>		<span class=p>}</span>
 </span></span><span class=line><span class=cl>	<span class=p>}</span></span></span></code></pre></div><p>如上，主要关注Channel Sinks( transport sink->formatter sinks->dispatch sink )，这里引用一张图
-<img class=tw-inline loading=lazy src=../vx_images/Pasted%20image%2020240920150422.png></p><p>TcpServerChannel的默认链
+<img class=tw-inline loading=lazy src=/Pasted%20image%2020240920150422_2678615671196382721.png srcset="/Pasted%20image%2020240920150422_2678615671196382721_hu5833063523713882131.webp 800w, /Pasted%20image%2020240920150422_2678615671196382721_hu4403517130489977331.webp 1200w, /Pasted%20image%2020240920150422_2678615671196382721_hu707118118838850167.webp 1600w" height=431 width=654></p><p>TcpServerChannel的默认链
 <code>TcpServerTransportSink → BinaryServerFormatterSink → SoapServerFormatterSink → DispatchChannelSink</code></p><p>TcpClientChannel的默认链是<code>BinaryClientFormatterSink</code> → <code>TcpClientTransportSink</code>，代码如下</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
@@ -438,7 +438,7 @@ print:!tw-hidden" title="Copy code">
 tw-mx-2
 tw-block
 group-[.is-open]:tw-hidden
-print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-6 class="chroma
+print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-1 class="chroma
 !tw-block
 tw-p-0
 tw-m-0
@@ -454,7 +454,7 @@ tw-scrollbar-thin"><span class=line><span class=cl><span class=kd>private</span>
 </span></span><span class=line><span class=cl>  <span class=n>IClientChannelSinkProvider</span> <span class=n>clientProviderChain</span> <span class=p>=</span> <span class=p>(</span><span class=n>IClientChannelSinkProvider</span><span class=p>)</span> <span class=k>new</span> <span class=n>BinaryClientFormatterSinkProvider</span><span class=p>();</span>  
 </span></span><span class=line><span class=cl>  <span class=n>clientProviderChain</span><span class=p>.</span><span class=n>Next</span> <span class=p>=</span> <span class=p>(</span><span class=n>IClientChannelSinkProvider</span><span class=p>)</span> <span class=k>new</span> <span class=n>TcpClientTransportSinkProvider</span><span class=p>(</span><span class=k>this</span><span class=p>.</span><span class=n>_prop</span><span class=p>);</span>  
 </span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=n>clientProviderChain</span><span class=p>;</span>  
-</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div><p>利用<a href=https://github.com/tyranid/ExploitRemotingService/tree/master target=_blank rel="noopener noreferrer">ExploitRemotingService</a>打一遍，调用堆栈如图</p><p><img class=tw-inline loading=lazy src=../vx_images/187124316260468.png></p><p>整个调用过程在经过Channel Sinks处理之后最终反序列化RCE，看下大致数据流</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
+</span></span><span class=line><span class=cl><span class=p>}</span></span></span></code></pre></div><p>利用<a href=https://github.com/tyranid/ExploitRemotingService/tree/master target=_blank rel="noopener noreferrer">ExploitRemotingService</a>打一遍，调用堆栈如图</p><p><img class=tw-inline loading=lazy src=/187124316260468_6296899372143492710.png srcset="/187124316260468_6296899372143492710_hu7113548034946791059.webp 800w, /187124316260468_6296899372143492710_hu11406334034185643220.webp 1200w, /187124316260468_6296899372143492710_hu13066360055854613609.webp 1600w" height=530 width=1044></p><p>整个调用过程在经过Channel Sinks处理之后最终反序列化RCE，看下大致数据流</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -493,7 +493,7 @@ print:!tw-hidden" title="Copy code">
 tw-mx-2
 tw-block
 group-[.is-open]:tw-hidden
-print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-7 class="chroma
+print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-2 class="chroma
 !tw-block
 tw-p-0
 tw-m-0
@@ -576,7 +576,7 @@ print:!tw-hidden" title="Copy code">
 tw-mx-2
 tw-block
 group-[.is-open]:tw-hidden
-print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-8 class="chroma
+print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-3 class="chroma
 !tw-block
 tw-p-0
 tw-m-0
@@ -589,7 +589,7 @@ tw-overflow-y-hidden
 tw-overflow-x-auto
 tw-scrollbar-thin"><span class=line><span class=cl>ysoserial.exe -g DataSet -f BinaryFormatter -c calc
 </span></span><span class=line><span class=cl>ExploitRemotingService.exe tcp://localhost:9999/RemotableServer raw yso_base64</span></span></code></pre></div><p>还有一种就是<a href=https://media.blackhat.com/bh-us-12/Briefings/Forshaw/BH_US_12_Forshaw_Are_You_My_Type_WP.pdf target=_blank rel="noopener noreferrer">这儿</a>提到的，但是会有文件落地。没有深入调试分析，大致原理见下图
-<img class=tw-inline loading=lazy src=../vx_images/Pasted%20image%2020240920170416.png>
+<img class=tw-inline loading=lazy src=/Pasted%20image%2020240920170416_3579353317249702615.png srcset="/Pasted%20image%2020240920170416_3579353317249702615_hu4160910856824734093.webp 800w, /Pasted%20image%2020240920170416_3579353317249702615_hu5547578682806252643.webp 1200w, /Pasted%20image%2020240920170416_3579353317249702615_hu1166571087875034090.webp 1600w" height=398 width=647>
 这里不详细介绍了，可以详细读读<a href=https://www.tiraniddo.dev/2019/10/bypassing-low-type-filter-in-net.html target=_blank rel="noopener noreferrer">该文章</a>的前半部分。</p><h3 id=low-type-filter class=headerLink><a href=#low-type-filter class=header-mark></a>Low Type Filter</h3><p>启用<strong>Low Type Filter</strong>之后的绕过方式就是上面提到文章中的后半部分（绕过CAS和MBR类型检查），利用</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
@@ -629,7 +629,7 @@ print:!tw-hidden" title="Copy code">
 tw-mx-2
 tw-block
 group-[.is-open]:tw-hidden
-print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-9 class="chroma
+print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-4 class="chroma
 !tw-block
 tw-p-0
 tw-m-0
@@ -679,7 +679,7 @@ print:!tw-hidden" title="Copy code">
 tw-mx-2
 tw-block
 group-[.is-open]:tw-hidden
-print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-10 class="chroma
+print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-5 class="chroma
 !tw-block
 tw-p-0
 tw-m-0
@@ -690,8 +690,8 @@ group-[.is-closed]:!tw-max-h-0
 group-[.is-wrap]:tw-text-wrap
 tw-overflow-y-hidden
 tw-overflow-x-auto
-tw-scrollbar-thin"><span class=line><span class=cl>This entire exploit is implemented behind the _uselease_ option. It works in the same way as _useser_ but should work even if the server is running _Low Type Filter_ mode. Of course there&#39;s caveats, this only works if the server sets up a bi-direction channel, if it registers a _TcpChannel_ or _IpcChannel_ then that should be fine, but if it just sets up a _TcpServerChannel_ it might not work. Also you still need to know the URI of the server and bypass any authentication requirements.</span></span></code></pre></div><p>八月底偶然发现cbwang505师傅写了一个通用的<a href=https://github.com/cbwang505/TcpServerChannelRce target=_blank rel="noopener noreferrer">EXP工具</a>，和James Forshaw的绕过方式由很大不同。</p><p>前者利用<code>FileInfo/DirectoryInfo</code>写入程序集然后直接调用，后者通过<code>SortedSet&lt;Array></code>利用链加载程序集间接调用( <code>XamlReader.Parse</code> )实现RCE( 无文件落地 )，可参考 <a href=https://bbs.kanxue.com/thread-282934.htm target=_blank rel="noopener noreferrer">这篇文章</a>。</p><p>为了测试效果更加直观，原工具的基础上修改了部分代码（PS：默认开启secure），可以看到执行成功后当前AppDomain的程序集多了一个FakeAsm.dll，不足的一点是在调用时需要遍历所有程序集找到这个恶意程序集，应该还有优化的空间。效果：</p><p><img class=tw-inline loading=lazy src=../vx_images/Pasted%20image%2020240923170600.png></p><h3 id=总结 class=headerLink><a href=#%e6%80%bb%e7%bb%93 class=header-mark></a>总结</h3><p>现在的应用都会做一些防护措施，即使TypeFilterLevel的值为Full时也不一定能直接利用（比如配置了白名单），这时候就需要关注MBR对象的方法是否存在一些直接可调用的危险方法。</p><p>启用Low Type Filter之后呢？虽然会检查CAS和MBR，但是依然能够反序列化一些符合条件的对象，可以以序列化构造函数为跳板找到调用的危险方法。
-<img class=tw-inline loading=lazy src=../vx_images/Pasted%20image%2020240924142001.png></p><p>将上面的RemoteObject1类改为实现ISerializable，RemoterServer开启Low Type Filter，构造序列化数据</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
+tw-scrollbar-thin"><span class=line><span class=cl>This entire exploit is implemented behind the _uselease_ option. It works in the same way as _useser_ but should work even if the server is running _Low Type Filter_ mode. Of course there&#39;s caveats, this only works if the server sets up a bi-direction channel, if it registers a _TcpChannel_ or _IpcChannel_ then that should be fine, but if it just sets up a _TcpServerChannel_ it might not work. Also you still need to know the URI of the server and bypass any authentication requirements.</span></span></code></pre></div><p>八月底偶然发现cbwang505师傅写了一个通用的<a href=https://github.com/cbwang505/TcpServerChannelRce target=_blank rel="noopener noreferrer">EXP工具</a>，和James Forshaw的绕过方式由很大不同。</p><p>前者利用<code>FileInfo/DirectoryInfo</code>写入程序集然后直接调用，后者通过<code>SortedSet&lt;Array></code>利用链加载程序集间接调用( <code>XamlReader.Parse</code> )实现RCE( 无文件落地 )，可参考 <a href=https://bbs.kanxue.com/thread-282934.htm target=_blank rel="noopener noreferrer">这篇文章</a>。</p><p>为了测试效果更加直观，原工具的基础上修改了部分代码（PS：默认开启secure），可以看到执行成功后当前AppDomain的程序集多了一个FakeAsm.dll，不足的一点是在调用时需要遍历所有程序集找到这个恶意程序集，应该还有优化的空间。效果：</p><p><img class=tw-inline loading=lazy src=/Pasted%20image%2020240923170600_15380846777431037184.png srcset="/Pasted%20image%2020240923170600_15380846777431037184_hu2490909648414415571.webp 800w, /Pasted%20image%2020240923170600_15380846777431037184_hu10999959644361664019.webp 1200w, /Pasted%20image%2020240923170600_15380846777431037184_hu16144869430585663926.webp 1600w" height=849 width=1646></p><h3 id=总结 class=headerLink><a href=#%e6%80%bb%e7%bb%93 class=header-mark></a>总结</h3><p>现在的应用都会做一些防护措施，即使TypeFilterLevel的值为Full时也不一定能直接利用（比如配置了白名单），这时候就需要关注MBR对象的方法是否存在一些直接可调用的危险方法。</p><p>启用Low Type Filter之后呢？虽然会检查CAS和MBR，但是依然能够反序列化一些符合条件的对象，可以以序列化构造函数为跳板找到调用的危险方法。
+<img class=tw-inline loading=lazy src=/Pasted%20image%2020240924142001_15289383515491001513.png srcset="/Pasted%20image%2020240924142001_15289383515491001513_hu14618099236173276579.webp 800w, /Pasted%20image%2020240924142001_15289383515491001513_hu5130846773876924617.webp 1200w, /Pasted%20image%2020240924142001_15289383515491001513_hu17701170878644252931.webp 1600w" height=571 width=1002></p><p>将上面的RemoteObject1类改为实现ISerializable，RemoterServer开启Low Type Filter，构造序列化数据</p><div class="code-block highlight is-open show-line-numbers tw-group tw-my-2"><div class="code-block-title
 tw-flex
 tw-flex-row
 tw-justify-between
@@ -730,7 +730,7 @@ print:!tw-hidden" title="Copy code">
 tw-mx-2
 tw-block
 group-[.is-open]:tw-hidden
-print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-11 class="chroma
+print:!tw-hidden" disabled aria-hidden=true><svg class="icon" viewBox="0 0 512 512"><path d="M328 256c0 39.8-32.2 72-72 72s-72-32.2-72-72 32.2-72 72-72 72 32.2 72 72zm104-72c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72zm-352 0c-39.8.0-72 32.2-72 72s32.2 72 72 72 72-32.2 72-72-32.2-72-72-72z"/></svg></button></div></div><pre style=counter-reset:codeblock class="tw-block tw-m-0 tw-p-0"><code id=codeblock-id-6 class="chroma
 !tw-block
 tw-p-0
 tw-m-0
