@@ -1,36 +1,4 @@
-<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>所有文章 - g7shot's blog</title><link>https://g7shot.github.io/posts/</link><description>所有文章 | g7shot's blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Wed, 26 Mar 2025 17:57:22 +0800</lastBuildDate><atom:link href="https://g7shot.github.io/posts/" rel="self" type="application/rss+xml"/><item><title>IngressNightmare CVE-2025-1974 漏洞分析</title><link>https://g7shot.github.io/posts/k8s/ingressnightmare-cve-2025-1974/</link><pubDate>Wed, 26 Mar 2025 17:57:22 +0800</pubDate><author><name>g7shot</name></author><guid>https://g7shot.github.io/posts/k8s/ingressnightmare-cve-2025-1974/</guid><description><![CDATA[<h2 id="ingress和ingress-controller" class="headerLink">
-    <a href="#ingress%e5%92%8cingress-controller" class="header-mark"></a>ingress和ingress-controller</h2><p>k8s的service和pod在集群内部有着集群网络统一管理和分配的ip地址，这些服务只在集群内部或namespace中可访问，外部无法直接访问，k8s提供了常用的三种访问方式，一般在spec.type中定义：</p>
-<ul>
-<li>NodePort</li>
-<li>LoadBalance</li>
-<li>ingress</li>
-</ul>
-<p>ingress demo</p>
-<div class="code-block highlight is-open show-line-numbers  tw-group tw-my-2">
-  <div class="
-    code-block-title 
-    
-    tw-flex 
-    tw-flex-row 
-    tw-justify-between 
-    tw-w-full tw-bg-bgColor-secondary
-    ">      
-    <button 
-      class="
-        tw-select-none 
-        tw-mx-2 
-        tw-block
-        group-[.is-open]:tw-rotate-90
-        tw-transition-[transform] 
-        tw-duration-500 
-        tw-ease-in-out
-        print:!tw-hidden"
-      disabled
-      aria-hidden="true"><svg class="icon"
-    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!-- Font Awesome Free 5.15.4 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"/></svg></button>
-
-    <div class="code-block-title-bar tw-w-full">
-      <p class="tw-select-none !tw-my-1">text</p>]]></description></item><item><title>2024总结</title><link>https://g7shot.github.io/posts/other/2024/</link><pubDate>Tue, 31 Dec 2024 17:57:22 +0800</pubDate><author><name>g7shot</name></author><guid>https://g7shot.github.io/posts/other/2024/</guid><description><![CDATA[<ol>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title>所有文章 - g7shot's blog</title><link>https://g7shot.github.io/posts/</link><description>所有文章 | g7shot's blog</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Wed, 26 Mar 2025 17:57:22 +0800</lastBuildDate><atom:link href="https://g7shot.github.io/posts/" rel="self" type="application/rss+xml"/><item><title>IngressNightmare CVE-2025-1974 漏洞分析</title><link>https://g7shot.github.io/posts/k8s/ingressnightmare-cve-2025-1974/</link><pubDate>Wed, 26 Mar 2025 17:57:22 +0800</pubDate><author><name>g7shot</name></author><guid>https://g7shot.github.io/posts/k8s/ingressnightmare-cve-2025-1974/</guid><description>&lt;p>CVE-2025-1097、CVE-2025-1098、CVE-2025-24514 和 CVE-2025-1974，这是 Kubernetes Ingress NGINX Controller 中一系列未经身份验证的远程代码执行漏洞。&lt;/p></description></item><item><title>2024总结</title><link>https://g7shot.github.io/posts/other/2024/</link><pubDate>Tue, 31 Dec 2024 17:57:22 +0800</pubDate><author><name>g7shot</name></author><guid>https://g7shot.github.io/posts/other/2024/</guid><description><![CDATA[<ol>
 <li>漏洞挖掘：</li>
 </ol>
 <p>去年开始个人的主要赛道由java换成了net，虽然工作上离不开java研究但是其余时间几乎都给了.net，收获的CVE</p>]]></description></item><item><title> 【.Net Remoting 系列三】 Veeam Backup .Net Remoting RCE (CVE-2024-40711)</title><link>https://g7shot.github.io/posts/net/netremoting-veeambackuprce/</link><pubDate>Thu, 26 Dec 2024 22:57:22 +0800</pubDate><author><name>g7shot</name></author><guid>https://g7shot.github.io/posts/net/netremoting-veeambackuprce/</guid><description>&lt;p>完整分析案例，首发于https://forum.butian.net/share/4000&lt;/p></description></item><item><title>【.Net Remoting 系列二】 Solarwinds ARM 漏洞分析</title><link>https://g7shot.github.io/posts/net/netremoting-solarwindsarm/</link><pubDate>Thu, 26 Dec 2024 17:57:22 +0800</pubDate><author><name>g7shot</name></author><guid>https://g7shot.github.io/posts/net/netremoting-solarwindsarm/</guid><description>&lt;p>首发于https://forum.butian.net/share/3998
